@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ application.role_title }}{% endblock %}
+{% block content %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h4>{{ application.role_title }}</h4>
+                <h6 class="text-muted">{{ application.company.name }}</h6>
+
+                {% if application.match_score is not None %}
+                <div class="my-3">
+                    <span class="badge fs-6
+                        {% if application.match_score >= 60 %}bg-success
+                        {% elif application.match_score >= 30 %}bg-warning text-dark
+                        {% else %}bg-danger{% endif %}">
+                        {{ application.match_score }}% match with your CV
+                    </span>
+                </div>
+
+                {% if application.missing_keywords %}
+                <h6>Terms in the JD your CV doesn't clearly cover:</h6>
+                <div class="mb-3">
+                    {% for kw in application.missing_keywords %}
+                    <span class="badge bg-light text-dark border me-1 mb-1">{{ kw }}</span>
+                    {% endfor %}
+                </div>
+                <p class="text-muted small">Consider weaving a few of these into your CV or cover letter if they genuinely apply to you.</p>
+                {% endif %}
+                {% endif %}
+
+                <hr>
+                <h6>Job Description</h6>
+                <p style="white-space: pre-wrap;">{{ application.job_description.content }}</p>
+
+                {% if application.job_description.source_url %}
+                <a href="{{ application.job_description.source_url }}" target="_blank">View original posting →</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Status</h6>
+                <form method="post">
+                    {% csrf_token %}
+                    <select name="status" class="form-select mb-2" onchange="this.form.submit()">
+                        {% for value, label in application.Status.choices %}
+                        <option value="{{ value }}" {% if value == application.status %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <hr>
+                <p class="small text-muted mb-1">Resume used</p>
+                <p>{{ application.resume.title|default:"None attached" }}</p>
+
+                <p class="small text-muted mb-1">Added</p>
+                <p>{{ application.created_at|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
