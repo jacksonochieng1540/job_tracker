@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>My Applications <span class="badge bg-secondary">{{ total }}</span></h3>
+</div>
+
+<div class="row g-3">
+    {% for status_value, apps in columns.items %}
+    <div class="col-md-2">
+        <div class="kanban-column bg-white rounded shadow-sm p-2">
+            <h6 class="text-uppercase text-muted border-bottom pb-2 mb-2">
+                {{ status_value|title }}
+                <span class="badge bg-light text-dark float-end">{{ apps|length }}</span>
+            </h6>
+            {% for app in apps %}
+            <a href="{% url 'application-detail' app.pk %}" class="text-decoration-none text-dark">
+                <div class="card mb-2 app-card">
+                    <div class="card-body p-2">
+                        <div class="fw-semibold small">{{ app.role_title }}</div>
+                        <div class="text-muted small">{{ app.company.name }}</div>
+                        {% if app.match_score is not None %}
+                        <span class="badge score-badge mt-1
+                            {% if app.match_score >= 60 %}bg-success
+                            {% elif app.match_score >= 30 %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ app.match_score }}% match
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <p class="text-muted small">No applications</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if total == 0 %}
+<div class="text-center mt-5">
+    <p class="text-muted">You haven't tracked any applications yet.</p>
+    <a href="{% url 'application-create' %}" class="btn btn-primary">Add your first application</a>
+</div>
+{% endif %}
+
+{% endblock %}
