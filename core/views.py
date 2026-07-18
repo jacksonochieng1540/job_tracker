@@ -17,10 +17,6 @@ from .serializers import (
 from .matching import compute_match
 
 
-# ---------------------------------------------------------------------------
-# Shared mixin: every queryset in this app is scoped to request.user so one
-# user's applications/resumes are never visible to another.
-# ---------------------------------------------------------------------------
 class OwnerScopedMixin:
     def get_queryset(self):
         return self.queryset.filter(owner=self.request.user)
@@ -29,9 +25,6 @@ class OwnerScopedMixin:
         serializer.save(owner=self.request.user)
 
 
-# ---------------------------------------------------------------------------
-# DRF API viewsets
-# ---------------------------------------------------------------------------
 class CompanyViewSet(OwnerScopedMixin, viewsets.ModelViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
@@ -80,10 +73,6 @@ def match_preview(request):
     result = compute_match(req.validated_data["resume_text"], req.validated_data["jd_text"])
     return Response(MatchResultSerializer(result).data, status=status.HTTP_200_OK)
 
-
-# ---------------------------------------------------------------------------
-# Server-rendered dashboard (Bootstrap templates, session auth)
-# ---------------------------------------------------------------------------
 @login_required
 def dashboard(request):
     """Kanban-style board: applications grouped by status column."""
